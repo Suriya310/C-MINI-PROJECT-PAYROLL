@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PayrollPro — Employee Payroll System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════
+       SIDEBAR NAV
+  ═══════════════════════════════════ -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">⬡</span>
+      <span class="brand-name">PayrollPro</span>
+    </div>
+
+    <ul class="nav-links">
+      <li class="nav-item active" data-section="dashboard">
+        <span class="nav-icon">◈</span> Dashboard
+      </li>
+      <li class="nav-item" data-section="add">
+        <span class="nav-icon">✦</span> Add Employee
+      </li>
+      <li class="nav-item" data-section="employees">
+        <span class="nav-icon">◉</span> All Employees
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div class="storage-badge" id="storageBadge">0 records stored</div>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════ -->
+  <main class="main-content">
+
+    <!-- ── DASHBOARD ── -->
+    <section id="section-dashboard" class="section active">
+      <div class="page-header">
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-sub">Your payroll at a glance</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Employees</div>
+          <div class="stat-value" id="statCount">0</div>
+          <div class="stat-bar"><div class="stat-bar-fill" id="barCount"></div></div>
+        </div>
+        <div class="stat-card accent-green">
+          <div class="stat-label">Total Net Payroll</div>
+          <div class="stat-value" id="statNet">Rs. 0</div>
+        </div>
+        <div class="stat-card accent-amber">
+          <div class="stat-label">Avg. Net Pay</div>
+          <div class="stat-value" id="statAvg">Rs. 0</div>
+        </div>
+        <div class="stat-card accent-pink">
+          <div class="stat-label">Total Tax Collected</div>
+          <div class="stat-value" id="statTax">Rs. 0</div>
+        </div>
+      </div>
+
+      <div class="card mt-lg">
+        <div class="card-header">
+          <span>Recent Employees</span>
+          <button class="btn btn-ghost" onclick="navigate('employees')">View All →</button>
+        </div>
+        <div id="recentList" class="recent-list">
+          <div class="empty-state">No employees added yet.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── ADD EMPLOYEE ── -->
+    <section id="section-add" class="section">
+      <div class="page-header">
+        <h1 class="page-title">Add Employee</h1>
+        <p class="page-sub">Register a new employee and compute payroll</p>
+      </div>
+
+      <div class="card form-card">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Employee ID <span class="req">*</span></label>
+            <input type="text" id="fEmpId" class="form-input" placeholder="e.g. EMP001" />
+            <span class="form-hint" id="idHint"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Full Name <span class="req">*</span></label>
+            <input type="text" id="fName" class="form-input" placeholder="e.g. Rajan Kumar" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Department <span class="req">*</span></label>
+            <input type="text" id="fDept" class="form-input" placeholder="e.g. Engineering" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Basic Pay (Rs.) <span class="req">*</span></label>
+            <input type="number" id="fBasic" class="form-input" placeholder="e.g. 25000" min="1" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Overtime Hours</label>
+            <input type="number" id="fOT" class="form-input" placeholder="0" min="0" value="0" />
+          </div>
+          <div class="form-group preview-group">
+            <label class="form-label">Live Payroll Preview</label>
+            <div class="pay-preview" id="payPreview">
+              <div class="preview-row"><span>OT Pay</span><span id="pvOT">Rs. 0.00</span></div>
+              <div class="preview-row"><span>Gross Pay</span><span id="pvGross">Rs. 0.00</span></div>
+              <div class="preview-row deduction"><span>Tax</span><span id="pvTax">Rs. 0.00 (0%)</span></div>
+              <div class="preview-row net"><span>Net Pay</span><span id="pvNet">Rs. 0.00</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-primary" id="btnAdd" onclick="addEmployee()">
+            <span>✦</span> Add Employee
+          </button>
+          <button class="btn btn-ghost" onclick="clearForm()">Clear</button>
+        </div>
+        <div class="form-msg" id="formMsg"></div>
+      </div>
+    </section>
+
+    <!-- ── ALL EMPLOYEES ── -->
+    <section id="section-employees" class="section">
+      <div class="page-header">
+        <h1 class="page-title">All Employees</h1>
+        <p class="page-sub">View, search, and manage records</p>
+      </div>
+
+      <div class="table-toolbar">
+        <input type="text" class="form-input search-input" id="searchInput"
+               placeholder="🔍  Search by ID or Name…" oninput="renderTable()" />
+        <button class="btn btn-danger-ghost" onclick="clearAllConfirm()">Clear All</button>
+      </div>
+
+      <div class="card table-card">
+        <div class="table-wrapper">
+          <table class="emp-table" id="empTable">
+            <thead>
+              <tr>
+                <th>EMP ID</th>
+                <th>NAME</th>
+                <th>DEPT</th>
+                <th>BASIC PAY</th>
+                <th>OT HRS</th>
+                <th>GROSS</th>
+                <th>TAX %</th>
+                <th>NET PAY</th>
+                <th>ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="empTbody">
+              <tr><td colspan="9" class="empty-cell">No employees yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════════
+       PAYSLIP MODAL
+  ═══════════════════════════════════ -->
+  <div class="modal-backdrop" id="modalBackdrop" onclick="closeModal()"></div>
+  <div class="modal" id="payslipModal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-brand">⬡ PayrollPro</div>
+        <div class="modal-title">SALARY SLIP</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="slip-meta">
+        <div class="slip-meta-row">
+          <span class="slip-label">Employee ID</span>
+          <span class="slip-value" id="slipId">—</span>
+        </div>
+        <div class="slip-meta-row">
+          <span class="slip-label">Full Name</span>
+          <span class="slip-value" id="slipName">—</span>
+        </div>
+        <div class="slip-meta-row">
+          <span class="slip-label">Department</span>
+          <span class="slip-value" id="slipDept">—</span>
+        </div>
+      </div>
+
+      <div class="slip-divider"></div>
+
+      <div class="slip-section-title">EARNINGS</div>
+      <div class="slip-row"><span>Basic Pay</span><span id="slipBasic">Rs. 0.00</span></div>
+      <div class="slip-row"><span id="slipOTLabel">Overtime (0h × Rs.100/h)</span><span id="slipOTPay">Rs. 0.00</span></div>
+      <div class="slip-divider"></div>
+      <div class="slip-row subtotal"><span>GROSS PAY</span><span id="slipGross">Rs. 0.00</span></div>
+
+      <div class="slip-divider"></div>
+
+      <div class="slip-section-title">DEDUCTIONS</div>
+      <div class="slip-row deduction"><span id="slipTaxLabel">Income Tax (0%)</span><span id="slipTaxAmt">Rs. 0.00</span></div>
+      <div class="slip-divider"></div>
+      <div class="slip-row subtotal deduction"><span>TOTAL DEDUCTIONS</span><span id="slipTotalDed">Rs. 0.00</span></div>
+
+      <div class="slip-net-box">
+        <span>NET PAY</span>
+        <span id="slipNet">Rs. 0.00</span>
+      </div>
+
+      <p class="slip-footer-note">** System-generated payslip. No signature required. **</p>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="printPayslip()">⎙ Print</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════
+       CONFIRM MODAL (for delete)
+  ═══════════════════════════════════ -->
+  <div class="modal-backdrop" id="confirmBackdrop" onclick="closeConfirm()"></div>
+  <div class="modal modal-sm" id="confirmModal">
+    <div class="modal-header">
+      <div class="modal-title" style="color:var(--red)">⚠ Confirm</div>
+      <button class="modal-close" onclick="closeConfirm()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="confirmMsg" class="confirm-msg">Are you sure?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" id="confirmYes">Delete</button>
+      <button class="btn btn-ghost" onclick="closeConfirm()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
